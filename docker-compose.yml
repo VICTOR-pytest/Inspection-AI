@@ -1,0 +1,89 @@
+version: "3.9"
+
+networks:
+  inspection-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: inspection-ai-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       ${POSTGRES_DB:-inspection_ai}
+      POSTGRES_USER:     ${POSTGRES_USER:-inspection_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-inspection_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - inspection-network
+    # Sprint 9B.4: porta PostgreSQL NÃO exposta no host em produção.
+    # Backend acessa via rede interna Docker (hostname: postgres).
+    # Para acesso local em dev, criar docker-compose.override.yml com:
+    #   services:
+    #     postgres:
+    #       ports: ["5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-inspection_user} -d ${POSTGRES_DB:-inspection_ai}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: inspection-ai-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-inspection_user}:${POSTGRES_PASSWORD:-inspection_password}@postgres:5432/${POSTGRES_DB:-inspection_ai}
+      DEBUG:        ${DEBUG:-false}
+      PYTHONPATH:   "/app:/vision_module"
+      STORAGE_PATH: "/app/storage"
+      CAMERA_MODE:  ${CAMERA_MODE:-simulated}
+      CAMERA_INDEX: ${CAMERA_INDEX:-0}
+      CAMERA_FPS:   ${CAMERA_FPS:-5.0}
+      # Sprint 8A — YOLO (desabilitado por padrão; ative com YOLO_ENABLED=true)
+      YOLO_ENABLED:         ${YOLO_ENABLED:-false}
+      YOLO_MODEL_PATH:      ${YOLO_MODEL_PATH:-/vision_module/vision/models/yolov8n.pt}
+      YOLO_CONFIDENCE_MIN:  ${YOLO_CONFIDENCE_MIN:-0.50}
+    volumes:
+      # Monta módulo vision — backend importa vision.source e vision.worker
+      - ./vision:/vision_module/vision:ro
+      # Sprint 7B — storage persistente entre restarts
+      - ./storage:/app/storage
+      # Sprint 8A — modelos YOLO persistentes (evita download a cada rebuild)
+      - ./vision/models:/vision_module/vision/models
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    networks:
+      - inspection-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Baked em build time — Vite não lê env vars de runtime em modo dev
+        VITE_API_URL: ${VITE_API_URL:-http://backend:8000}
+    container_name: inspection-ai-frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://backend:8000}
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    networks:
+      - inspection-network
+    depends_on:
+      - backend

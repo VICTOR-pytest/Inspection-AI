@@ -1,0 +1,21 @@
+# grafana/provisioning/datasources/prometheus.yml
+# -------------------------------------------------
+# Provisiona automaticamente o datasource Prometheus no Grafana.
+# Sprint 9B.4 — Sprint de Observabilidade
+#
+# O Grafana lê este arquivo na inicialização e configura o datasource
+# automaticamente — sem necessidade de configuração manual via UI.
+
+apiVersion: 1
+
+datasources:
+  - name:      Prometheus
+    type:      prometheus
+    access:    proxy
+    url:       http://prometheus:9090
+    isDefault: true
+    version:   1
+    editable:  false
+    jsonData:
+      timeInterval: "15s"
+      httpMethod:   POST

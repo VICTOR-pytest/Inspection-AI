@@ -1,0 +1,40 @@
+# prometheus/prometheus.yml
+# --------------------------
+# Configuração do Prometheus para Inspection AI
+# Sprint 9B.4 — Sprint de Observabilidade
+#
+# Uso com docker-compose.observability.yml:
+#   docker compose -f docker-compose.yml -f docker-compose.observability.yml up
+#
+# Acesso: http://localhost:9090
+
+global:
+  scrape_interval:     15s   # Coleta métricas a cada 15 segundos
+  evaluation_interval: 15s   # Avalia regras a cada 15 segundos
+  scrape_timeout:      10s   # Timeout por scrape
+
+# Labels aplicados a todas as métricas coletadas por este Prometheus
+  external_labels:
+    environment: 'production'
+    system:      'inspection-ai'
+
+# ── Scrape jobs ────────────────────────────────────────────────────────────────
+
+scrape_configs:
+  # Backend FastAPI — endpoint /metrics em formato Prometheus text/plain
+  - job_name: 'inspection-ai-backend'
+    static_configs:
+      - targets: ['backend:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    # Labels adicionais para identificação no Grafana
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label:  instance
+        replacement:   'inspection-ai-backend'
+
+  # Self-monitoring do Prometheus
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 30s

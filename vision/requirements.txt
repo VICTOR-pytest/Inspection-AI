@@ -1,0 +1,9 @@
+# Visão computacional
+opencv-python-headless==4.10.0.84
+numpy==1.26.4
+
+# Leitura de barcode / QR Code
+pyzbar==0.1.9
+
+# OCR (opcional — para futura leitura de texto em rótulos)
+# pytesseract==0.3.13

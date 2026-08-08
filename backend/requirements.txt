@@ -1,0 +1,41 @@
+# ── Web framework ───────────────────────────────────────────────────────────
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+
+# ── WebSocket (já incluído no uvicorn[standard]) ────────────────────────────
+websockets==13.1
+
+# ── Database ────────────────────────────────────────────────────────────────
+sqlalchemy==2.0.36
+alembic==1.14.0
+psycopg2-binary==2.9.10
+
+# ── Validation / Config ─────────────────────────────────────────────────────
+pydantic==2.10.3
+pydantic-settings==2.6.1
+python-dotenv==1.0.1
+
+# ── Computer Vision (Sprint 3/5) ────────────────────────────────────────────
+opencv-python-headless==4.10.0.84
+numpy==1.26.4
+pyzbar==0.1.9
+
+# ── YOLO (Sprint 8A) — opcional: sistema funciona sem este pacote ─────────────
+# Para ativar inferência real: pip install ultralytics
+# Sem ultralytics, o sistema usa ProductDetector (fallback automático).
+# ultralytics>=8.3  # descomente para build com YOLO real
+
+# ── Quality ─────────────────────────────────────────────────────────────────
+ruff==0.8.3
+black==24.10.0
+pytest==8.3.4
+pytest-asyncio==0.24.0
+httpx==0.28.1
+
+# ── Autenticação JWT (Sprint 9B.1) ───────────────────────────────────────────
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+
+# ── Observabilidade (Sprint 9B.4) ────────────────────────────────────────────
+prometheus-client==0.21.0
