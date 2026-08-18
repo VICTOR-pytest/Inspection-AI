@@ -1,176 +1,64 @@
-# Inspection AI
+# 👁️ Inspection AI
 
-> Industrial inspection system for production lines.
+### Intelligent Industrial Inspection System
 
-## Objective
-
-Inspection AI will identify products, read barcodes, validate weight, count items,
-approve or reject them, generate dashboards, and manage production lines.
-This repository contains the Sprint 1 foundation.
+> Sistema inteligente de inspeção industrial desenvolvido para automatizar a validação de produtos em linhas de produção utilizando APIs, visão computacional, verificação de peso e integração com hardware industrial.
 
 ---
 
-## Directory Structure
+## 🚀 Overview
 
-```
-inspection-ai/
-├── backend/          # FastAPI REST API (Python 3.12)
-├── frontend/         # React + TypeScript (Vite)
-├── vision/           # Computer vision pipeline (future)
-├── hardware/         # ESP32 firmware / load cells (future)
-├── shared/           # Shared utilities (future)
-├── docs/             # Architecture and documentation
-├── docker-compose.yml
-├── .env.example
-└── README.md
-```
+**Inspection AI** é uma plataforma de inspeção industrial projetada para monitorar produtos durante o processo de produção e auxiliar na identificação automática de produtos fora dos padrões esperados.
 
----
+O sistema foi projetado para integrar:
 
-## Requirements
+- Backend de alta performance
+- Visão computacional
+- Machine Learning
+- Bancos de dados
+- Câmeras industriais
+- Sensores de peso
+- Leitura de códigos de barras
+- Monitoramento de linhas de produção
+- Dashboards operacionais
 
-- [Docker](https://www.docker.com/) 24+
-- [Docker Compose](https://docs.docker.com/compose/) v2+
-
-For local development without Docker:
-
-- Python 3.12
-- Node.js 20+
-- PostgreSQL 16
+O objetivo é transformar dados coletados durante a produção em decisões automatizadas de **aprovação ou rejeição**.
 
 ---
 
-## Installation
+# 🎯 Objective
 
-```bash
-# Clone the repository
-git clone <repo-url>
-cd inspection-ai
+O sistema foi projetado para realizar um fluxo de inspeção semelhante a:
 
-# Copy the environment file
-cp .env.example .env
-```
-
----
-
-## Execution
-
-### Docker (recommended)
-
-```bash
-docker compose up --build
-```
-
-This starts three containers:
-
-| Container                    | Port   | Description          |
-|------------------------------|--------|----------------------|
-| `inspection-ai-postgres`     | 5432   | PostgreSQL 16        |
-| `inspection-ai-backend`      | 8000   | FastAPI              |
-| `inspection-ai-frontend`     | 5173   | React (Vite)         |
-
-Stop all containers:
-
-```bash
-docker compose down
-```
-
-Stop and remove volumes:
-
-```bash
-docker compose down -v
-```
-
----
-
-## Backend
-
-### Local development
-
-```bash
-cd backend
-python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-```
-
-Backend available at: http://localhost:8000
-
-### Endpoints
-
-| Method | Path      | Description      |
-|--------|-----------|------------------|
-| GET    | `/`       | App info         |
-| GET    | `/health` | Health check     |
-| GET    | `/docs`   | Swagger UI       |
-| GET    | `/redoc`  | ReDoc            |
-
----
-
-## Frontend
-
-### Local development
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Frontend available at: http://localhost:5173
-
----
-
-## Database
-
-PostgreSQL 16 — connection details (defaults from `.env.example`):
-
-| Parameter | Value               |
-|-----------|---------------------|
-| Host      | `localhost`         |
-| Port      | `5432`              |
-| Database  | `inspection_ai`     |
-| User      | `inspection_user`   |
-| Password  | `inspection_password` |
-
-### Migrations (Alembic)
-
-```bash
-cd backend
-
-# Create a new migration
-alembic revision --autogenerate -m "description"
-
-# Apply migrations
-alembic upgrade head
-
-# Rollback one step
-alembic downgrade -1
-```
-
----
-
-## Validation
-
-After `docker compose up --build`, verify all services:
-
-```bash
-# Backend root
-curl http://localhost:8000/
-# → {"name":"Inspection AI","status":"running"}
-
-# Health check
-curl http://localhost:8000/health
-# → {"status":"healthy"}
-
-# Frontend
-open http://localhost:5173
-# → Shows "Inspection AI / System Online"
-```
-
----
-
-## Architecture
-
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for full details.
+```text
+                 Production Line
+                       │
+                       ▼
+                ┌─────────────┐
+                │   Product   │
+                └──────┬──────┘
+                       │
+          ┌────────────┼────────────┐
+          │            │            │
+          ▼            ▼            ▼
+      Barcode       Camera       Load Cell
+       Reader       Capture       Weight
+          │            │            │
+          ▼            ▼            ▼
+      Product DB   Computer Vision  Validation
+          │            │            │
+          └────────────┼────────────┘
+                       ▼
+                Inspection Engine
+                       │
+              ┌────────┴────────┐
+              │                 │
+              ▼                 ▼
+           APPROVED           REJECTED
+              │                 │
+              └────────┬────────┘
+                       ▼
+                 Event System
+                       │
+                       ▼
+                  Dashboard
